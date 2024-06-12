@@ -1,0 +1,8 @@
+bike
+eagle
+car
+glasses
+horse
+plane
+ship
+suit
