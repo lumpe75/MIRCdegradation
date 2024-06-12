@@ -59,6 +59,6 @@ class CustomImageDataset(Dataset):
 
 
 if __name__ == '__main__':
-    zip_dir = 'C:\\Users\\Lumpe\\Pictures\\Imagenet'
+    zip_dir = 'C:\\Users\\Lumpe\\Pictures\\Imagenet'  # update path
     extract_dir = 'C:\\Users\\Lumpe\\Pictures\\Imagenet'
     extract_zip_files(zip_dir, extract_dir)
