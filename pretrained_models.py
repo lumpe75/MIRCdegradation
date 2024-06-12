@@ -1,21 +1,21 @@
-import numpy as np
 import pandas as pd
 from torchvision import models
 from torchvision import transforms
 from torchvision.models.detection import fasterrcnn_resnet50_fpn
-from torchvision.datasets import CocoDetection
 from PIL import Image
 import torch
 
 
-def run_comparison_alexnet():
-    alexnet = models.alexnet(pretrained=True)
+def run_comparison_alex_net():
+    """
+    Scores the padded degraded MIRCs with a pretrained Alexnet
+    """
+    alex_net = models.alexnet(pretrained=True)
     transform = transforms.Compose([
         transforms.Resize(256),
         transforms.ToTensor(),
     ])
-
-    alexnet.eval()
+    alex_net.eval()
     with open('imagenet_classes.txt') as f:
         classes = [line.strip() for line in f.readlines()]
 
@@ -29,11 +29,8 @@ def run_comparison_alexnet():
             img = Image.open(f + "\\" + p + ".png")
             img_t = transform(img)
             batch_t = torch.unsqueeze(img_t, 0)
-            out = alexnet(batch_t)
-
-            # percentage = torch.nn.functional.softmax(out, dim=1)[0] * 100
+            out = alex_net(batch_t)
             percentage = out[0]
-
             current = [f, p.split('_')[0], p.split('_')[1]]
             for idx, _ in enumerate(classes):
                 class_name = classes[idx]
@@ -51,12 +48,14 @@ def run_comparison_alexnet():
 
 
 def run_comparison_resnet():
+    """
+    Scores the padded degraded MIRCs with a pretrained Resnet 50
+    """
     resnet = models.resnet50(pretrained=True)
     transform = transforms.Compose([
         transforms.Resize(256),
         transforms.ToTensor(),
     ])
-
     resnet.eval()
     with open('imagenet_classes.txt') as f:
         classes = [line.strip() for line in f.readlines()]
@@ -73,7 +72,6 @@ def run_comparison_resnet():
             batch_t = torch.unsqueeze(img_t, 0)
             out = resnet(batch_t)
 
-            #percentage = torch.nn.functional.softmax(out, dim=1)[0] * 100
             percentage = out[0]
 
             current = [f, p.split('_')[0], p.split('_')[1]]
@@ -93,15 +91,14 @@ def run_comparison_resnet():
 
 
 def run_comparison_rcnn():
-    # Load the pretrained Faster R-CNN model
+    """
+    Scores the padded degraded MIRCs with a pretrained Faster R-CNN model
+    """
     rcnn = fasterrcnn_resnet50_fpn(pretrained=True)
-    rcnn.eval()  # Set the model to evaluation mode
-
-    # Define the necessary transforms
+    rcnn.eval()
     transform = transforms.Compose([
         transforms.ToTensor()
     ])
-
     with open('imagenet_classes.txt') as f:
         classes = [line.strip() for line in f.readlines()]
 
@@ -120,7 +117,7 @@ def run_comparison_rcnn():
 
             prediction = predictions[0]
 
-            labels = prediction['labels']
+            # labels = prediction['labels']
             scores = prediction['scores']
 
             percentage = torch.nn.functional.softmax(scores, dim=1)[0] * 100
@@ -139,7 +136,3 @@ def run_comparison_rcnn():
 
     df = pd.DataFrame(result_list, columns=column_names)
     df.to_csv("C:\\Users\\Lumpe\\Synced\\_CogCoVI\\rcnn_results.csv", sep=",", index=False)
-
-
-if __name__ == '__main__':
-    run_comparison_alexnet()
